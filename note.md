@@ -6,3 +6,7 @@ cout就是output。
 \ 代表鍵盤打不出來的字 ，\n代表換行,兩個\\會印出一個斜線。
 g++ test.cpp -o test.exe 可以編譯。
 cin就是input 
+宣告變數: 先type(類別), 再name(變數名) 舉例:int myint 
+種類 變數名 = 值
+int myint =5;
+記得先初始化變數
