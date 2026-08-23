@@ -1,0 +1,11 @@
+@"
+# 編譯產物與執行檔
+*.exe
+*.o
+*.obj
+*.out
+
+# 編輯器與系統暫存
+.vscode/
+.vs/
+"@ | Out-File -FilePath .gitignore -Encoding utf8
