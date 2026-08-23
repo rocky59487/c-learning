@@ -4,3 +4,4 @@
 cout就是output。
 <<後面的東西流到cout去。 
 \ 代表鍵盤打不出來的字 ，\n代表換行。
+g++ test.cpp -o test.exe 可以編譯
