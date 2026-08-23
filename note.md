@@ -3,5 +3,6 @@
 一定要有main,不能多也不能少,大寫都不行。
 cout就是output。
 <<後面的東西流到cout去。 
-\ 代表鍵盤打不出來的字 ，\n代表換行。
-g++ test.cpp -o test.exe 可以編譯
+\ 代表鍵盤打不出來的字 ，\n代表換行,兩個\\會印出一個斜線。
+g++ test.cpp -o test.exe 可以編譯。
+cin就是input 
