@@ -12,3 +12,6 @@
 #第十一堂課:第二講：Selection and Repetition #1:
 #第十二堂課:第二講：Selection and Repetition #2:
 #第十三堂課:第二講：Selection and Repetition #3:用if else 在testtest.cpp完成比較三個數的大小
+#第十四堂課:第二講：Selection and Repetition #4:
+#第十五堂課:第二講：Selection and Repetition #5:
+#第十六堂課:第二講：Selection and Repetition #6:

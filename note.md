@@ -11,3 +11,5 @@ cin就是input
 int myint =5;
 記得先初始化變數
 輸入會占存並且空白鍵會算下一個輸入
+最近的if else 有關連
+SWITH CASE 可以用再有多種可能性上用CASE列出不同情況，用break跳出。
