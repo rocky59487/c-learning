@@ -80,6 +80,24 @@ ul.opts li b{flex:none;width:1.2em}
 .score{font-family:var(--mono);font-size:14px;color:var(--muted)}
 .fb{font-weight:700;margin:8px 0}
 .fb.ok{color:var(--ok)} .fb.no{color:var(--no)}
+.howto{display:grid;gap:6px;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+.howto p{margin:0;display:flex;gap:8px;align-items:baseline}
+.tk{display:inline-block;font-weight:700;border-radius:6px;padding:1px 8px;flex:none}
+.tk.pick{background:var(--ok-soft);color:var(--ok)} .tk.drop{background:var(--no-soft);color:var(--no)}
+.all4{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:8px 12px;margin-bottom:10px}
+.all4 summary{cursor:pointer;font-weight:500}
+.all4 ul{margin:6px 0 0;padding-left:18px;font-size:14px}
+.tlist{list-style:none;margin:0;padding:0}
+.tlist li.r{display:grid;grid-template-columns:2.6em 1fr auto;gap:4px 10px;align-items:start;padding:9px 0;border-bottom:1px solid var(--rule)}
+.tlist .n{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:4px;text-align:right}
+.tlist .main{min-width:0}
+.tlist .tok{font-size:18px;font-weight:700;word-break:break-all}
+.tlist .tok.pick{color:var(--ok)} .tlist .tok.drop{color:var(--no)}
+.tlist .lab{font-size:12px;font-weight:700;margin-right:6px;vertical-align:2px}
+.tlist .ctx{font-size:13px;color:var(--muted);margin-top:2px;word-break:break-word}
+.tlist .ctx mark{background:transparent;color:var(--ink);font-weight:700;text-decoration:underline}
+.tcov .ctx{filter:blur(5px)}
+.tlist li.ms{padding:8px 0;font-size:13px;font-weight:700;color:var(--rod);border-bottom:2px solid var(--rod)}
 .empty{color:var(--muted);text-align:center;padding:24px 0}
 small.src{color:var(--muted);font-size:12px}
 @media (prefers-reduced-motion:no-preference){.q-opt,.chip,nav button{transition:background .15s,border-color .15s}}
@@ -89,10 +107,11 @@ small.src{color:var(--muted);font-size:12px}
 <header>
   <div class="rodbar" aria-hidden="true"></div>
   <h1>04202 工程測量乙級 學科速背</h1>
-  <p class="sub">官方題庫 A11 全部 1,157 題 · 已按「每背一題能拿幾分」排好順序</p>
+  <p class="sub">官方題庫 A11 全部 1,157 題 · 背前 322 條口訣，期望 60 分</p>
 </header>
 <nav role="tablist">
   <button role="tab" id="tab-plan" aria-selected="true" data-v="plan">策略</button>
+  <button role="tab" id="tab-trig" aria-selected="false" data-v="trig">口訣</button>
   <button role="tab" id="tab-study" aria-selected="false" data-v="study">速背</button>
   <button role="tab" id="tab-quiz" aria-selected="false" data-v="quiz">測驗</button>
   <button role="tab" id="tab-wrong" aria-selected="false" data-v="wrong">錯題</button>
@@ -115,35 +134,71 @@ small.src{color:var(--muted);font-size:12px}
   </table>
   <p>複選的效率是專業單選的 3 倍、共同科目的 5.5 倍。所以先背複選。</p>
 
-  <h2>題庫統計：哪些「規律」是真的</h2>
+  <h2>用模型找規律：結果</h2>
+  <p>把題庫切成 5 份，用 4 份訓練模型（26 個特徵：選項長度、數字大小排名、尾數、跟其他選項的相似度、跟題幹的重疊、絕對詞、否定詞，再加上所有字詞），去猜剩下那份<b>沒看過</b>的題目。</p>
   <table class="stat">
-    <tr><td>單選選「最長的選項」<span class="verdict v-no">沒用</span></td><td>28%</td></tr>
-    <tr><td>單選選「最短的選項」<span class="verdict v-no">沒用</span></td><td>31%</td></tr>
-    <tr><td>單選選「跟其他選項最像的」<span class="verdict v-no">沒用</span></td><td>22%</td></tr>
-    <tr><td>單選答案號碼分布 ①131 ②169 ③160 ④118<span class="verdict v-no">考試會打亂</span></td><td>—</td></tr>
-    <tr><td>數字計算題：選「中間兩個值」之一<span class="verdict v-mid">只在完全不會時用</span></td><td>57%</td></tr>
-    <tr><td>複選答案個數：2 個 76 題、3 個 95 題、4 個 9 題、1 個 0 題<span class="verdict v-ok">有用</span></td><td>95% 是 2–3 個</td></tr>
-    <tr><td>複選任一選項是對的機率<span class="verdict v-ok">有用</span></td><td>66%</td></tr>
-    <tr><td>複選選項含「可以消除」<span class="verdict v-mid">樣本少</span></td><td>只有 36% 是對的</td></tr>
-    <tr><td>複選選項含「一定／必須／只要／均…」等絕對用語<span class="verdict v-mid">弱</span></td><td>57% 是對的</td></tr>
+    <tr><td>專業單選（全部）</td><td>26.8%</td></tr>
+    <tr><td>專業單選：計算題</td><td>28.4%</td></tr>
+    <tr><td>專業單選：文字題</td><td>30.3%</td></tr>
+    <tr><td>共同科目</td><td>32.0%</td></tr>
+    <tr><td>複選全對（亂猜 3 個是 13.2%）</td><td>18.8%</td></tr>
   </table>
-  <p><small class="src">隨便猜的正確率是 25%，所以 22–31% 等於沒有規律。截圖裡那種「看到某字就選某個」的規則，在這份題庫上測不出效果。真正有效的只有複選題的答案個數。</small></p>
+  <p>亂猜是 25%。模型只多了 2–7 個百分點，代表題目裡<b>沒有能套到新題目的出題規律</b>。</p>
+
+  <h2>單一規則檢定（整個題庫）</h2>
+  <table class="stat">
+    <tr><td>問「錯誤／何者非」，只有一個選項含「一定、必須、只要、完全、均、僅…」→ 選它<span class="verdict v-ok">真的</span></td><td>19/38　50%</td></tr>
+    <tr><td>問「錯誤／何者非」，只有一個選項含「不、非、無」→ 選它<span class="verdict v-ok">真的</span></td><td>17/32　53%</td></tr>
+    <tr><td>複選的正確答案是 2 或 3 個<span class="verdict v-ok">真的</span></td><td>171/180　95%</td></tr>
+    <tr><td>文字題選最長的<span class="verdict v-mid">太弱</span></td><td>29.6%</td></tr>
+    <tr><td>計算題選第 2 或第 3 小（亂猜 50%）<span class="verdict v-no">巧合</span></td><td>55.1%</td></tr>
+    <tr><td>計算題選尾數是某個數字（0–9 都測過）<span class="verdict v-no">巧合</span></td><td>18–37%</td></tr>
+    <tr><td>複選：最長的選項是對的（基準 66%）<span class="verdict v-no">巧合</span></td><td>71%</td></tr>
+    <tr><td>複選：含絕對詞的是錯的<span class="verdict v-no">巧合</span></td><td>56% 是對的</td></tr>
+  </table>
+  <p><small class="src">「真的」= 二項檢定 p &lt; 0.002，在測了 24 條規則後仍然成立。前兩條只適用於約 70 題。上一版說「計算題選中間」有用，重新檢定後只是巧合，已撤回。</small></p>
+
+  <h2>真正有用的：看到就選的字串</h2>
+  <p>考題全部來自這個題庫，所以可以找出「在整個題庫裡 100% 不會錯」的短字串：單選的選項裡出現它就選；複選先全選，選項裡出現紅色字串就取消。找到 4,218 個可用的「選」字串、2,181 個「刪」字串，再用演算法挑出每條能多拿最多分的順序。</p>
+  <table class="stat">
+    <tr><td>不背，全部亂猜</td><td>22 分</td></tr>
+    <tr><td>背前 100 條</td><td>41 分</td></tr>
+    <tr><td>背前 200 條</td><td>52 分</td></tr>
+    <tr><td><b>背前 322 條</b></td><td><b>60 分</b></td></tr>
+    <tr><td>背前 400 條</td><td>65 分</td></tr>
+    <tr><td>背前 500 條</td><td>70 分</td></tr>
+    <tr><td>全部 857 條</td><td>83 分</td></tr>
+  </table>
+  <p><small class="src">分數是期望值：假設背到的都答對、沒背到的用猜的。一條字串最多只能同時解決 4 題，表示題庫裡沒有大量重複的關鍵字，最短的背法就是一題一個字串。有 30 題答案是圖或公式，沒辦法用字串。</small></p>
 
   <h2>完全不會時怎麼猜</h2>
   <div class="plan">
-    <div><b class="mono">複選</b><span>選 3 個：把最可疑的一個刪掉，其餘全選。絕對不要只選 1 個；只有 9 題是 4 個全選，名單在「速背」最上面。</span></div>
-    <div><b class="mono">計算</b><span>4 個數字由小到大排，選第 2 或第 3 個。</span></div>
-    <div><b class="mono">共同</b><span>選最守法、最安全、最環保、最誠實的那個；題目問「錯誤／何者非」時反過來。</span></div>
+    <div><b class="mono">複選</b><span>選 3 個，刪掉最可疑的一個。絕對不要只選 1 個。</span></div>
+    <div><b class="mono">問錯誤</b><span>只有一個選項有「一定、必須、只要、完全、均」或「不、非、無」→ 選它，約五成會對。</span></div>
+    <div><b class="mono">其他</b><span>沒有可靠的猜法，隨便選一個，把時間留給會的題目。</span></div>
   </div>
 
   <h2>60 分鐘怎麼用</h2>
   <div class="plan">
-    <div><b class="mono">0–25′</b><span>速背 → 複選 180 題。每題只看紅色 ✗ 的選項，記住「哪句是錯的」，其他都選。</span></div>
-    <div><b class="mono">25–48′</b><span>速背 → 專業單選。看題目關鍵字＋綠色答案。計算題直接記答案數值（考試數字跟題庫一樣）。</span></div>
-    <div><b class="mono">48–55′</b><span>速背 → 共同科目，快速掃過，大多是常識題。</span></div>
-    <div><b class="mono">55–60′</b><span>測驗 → 複選，錯的題目自動進「錯題」，進考場前再看一次。</span></div>
+    <div><b class="mono">0–40′</b><span>「口訣」分頁，背前 322 條（每條約 7 秒）。看綠字或紅字，順便看一眼下面的完整選項。</span></div>
+    <div><b class="mono">40–52′</b><span>繼續背到第 400 條，多 5 分保險。</span></div>
+    <div><b class="mono">52–60′</b><span>「測驗」→ 複選，答錯的進「錯題」，進考場前再看一次。</span></div>
   </div>
   <p><small class="src">題庫來源：勞動部技能檢定中心公告 04202 工程測量乙級學科題庫（2018 公告版，與 2025 年 10 月線上版逐題一致），共同科目 90006（115 年適用版）、90007、90008、90009（114 年公告版）。已刪除 12 題公告刪題。</small></p>
+</section>
+
+<section id="v-trig" hidden>
+  <div class="howto">
+    <p><span class="tk pick">選</span>單選題：選項裡看到這個字串，就選那個選項，不用看題目。</p>
+    <p><span class="tk drop">刪</span>複選題：先全部勾選，選項裡看到這個字串就取消。</p>
+  </div>
+  <details class="all4"><summary>複選這 9 題是 4 個全選</summary><ul id="all4"></ul></details>
+  <div class="tools">
+    <label class="tg"><input type="checkbox" id="thide"> 隱藏已記住</label>
+    <label class="tg"><input type="checkbox" id="tcover"> 遮住完整選項</label>
+  </div>
+  <div class="prog" id="tprog"></div>
+  <ol id="tlist" class="tlist"></ol>
 </section>
 
 <section id="v-study" hidden>
@@ -182,6 +237,7 @@ small.src{color:var(--muted);font-size:12px}
 
 <script>
 const CARDS=__CARDS__;
+const TRIG=__TRIG__;
 const IMGS=__IMGS__;
 const C="①②③④";
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -192,8 +248,8 @@ const $=s=>document.querySelector(s);
 // tabs
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.v));
 function show(v){document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
-  ["plan","study","quiz","wrong"].forEach(x=>$("#v-"+x).hidden=x!==v);
-  if(v==="study")renderList(); if(v==="quiz"&&!cur)nextQ(); if(v==="wrong")renderWrong(); store.set("tab",v);}
+  ["plan","trig","study","quiz","wrong"].forEach(x=>$("#v-"+x).hidden=x!==v);
+  if(v==="trig")renderTrig(); if(v==="study")renderList(); if(v==="quiz"&&!cur)nextQ(); if(v==="wrong")renderWrong(); store.set("tab",v);}
 
 // study
 let tier=1, shown=40;
@@ -278,6 +334,35 @@ function renderWrong(){
   $("#wlist").innerHTML=r.length?r.map(c=>cardHTML(c,{noLearn:true})).join(""):'<p class="empty">還沒有錯題。到「測驗」做幾題，答錯的會出現在這裡。</p>';
 }
 $("#wclear").onclick=()=>{wrong=new Set();store.set("wrong",[]);renderWrong()};
+
+// triggers
+let tshown=60;
+$("#all4").innerHTML=CARDS.filter(c=>c.ans.length===4).map(c=>`<li>${esc(c.stem)}</li>`).join("");
+["#thide","#tcover"].forEach(x=>$(x).addEventListener("input",()=>{tshown=60;renderTrig()}));
+function hl(o,t){const i=o.replace(/\s+/g,"").indexOf(t);const n=o.replace(/\s+/g,"");return i<0?esc(o):esc(n.slice(0,i))+"<mark>"+esc(t)+"</mark>"+esc(n.slice(i+t.length))}
+function renderTrig(){
+  const hide=$("#thide").checked, cover=$("#tcover").checked;
+  const done=TRIG.filter((r,i)=>learned.has("T"+i)).length;
+  $("#tprog").innerHTML=`已記住 <span class="mono">${done} / ${TRIG.length}</span><div class="bar"><i style="width:${100*done/TRIG.length}%"></i></div>`;
+  $("#tlist").className="tlist"+(cover?" tcov":"");
+  let html="",shown=0,ms=[30,40,50,60,65,70,80],mi=0,i=0;
+  for(;i<TRIG.length&&shown<tshown;i++){
+    const r=TRIG[i];
+    while(mi<ms.length&&r.s>=ms[mi]){html+=`<li class="ms">背到這裡 ≈ ${ms[mi]} 分</li>`;mi++}
+    if(hide&&learned.has("T"+i))continue;
+    shown++;
+    const L=learned.has("T"+i);
+    html+=`<li class="r" data-i="${i}"><span class="n">${i+1}</span><div class="main"><div class="tok ${r.d?"drop":"pick"}"><span class="lab tk ${r.d?"drop":"pick"}">${r.d?"刪":"選"}</span>${esc(r.t)}</div>${r.c.map(c=>`<div class="ctx">${hl(c,r.t)}</div>`).join("")}</div><button class="learn" aria-pressed="${L}">${L?"✓":"記住"}</button></li>`;
+  }
+  if(i<TRIG.length)html+=`<li><button class="more" id="tmore">再顯示 60 條（還有 ${TRIG.length-i}）</button></li>`;
+  $("#tlist").innerHTML=html;
+  const m=$("#tmore"); if(m)m.onclick=()=>{tshown+=60;renderTrig()};
+}
+$("#tlist").addEventListener("click",e=>{
+  const b=e.target.closest(".learn"); if(!b)return; const id="T"+b.closest("li").dataset.i;
+  learned.has(id)?learned.delete(id):learned.add(id); store.set("learned",[...learned]);
+  const L=learned.has(id); b.setAttribute("aria-pressed",L); b.textContent=L?"✓":"記住";
+});
 
 fillSec();
 const t0=store.get("tab","plan"); if(t0!=="plan")show(t0);
