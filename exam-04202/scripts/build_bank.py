@@ -33,6 +33,8 @@ out_dir = Path(out_dir)
 
 Q = [q for q in json.load(open(src, encoding="utf-8")) if not q["deleted"]]
 FIX = {f["id"]: f for f in json.load(open(fixes_path, encoding="utf-8"))} if Path(fixes_path).exists() else {}
+_ex_path = Path(fixes_path).with_name("explain.json")
+EXPLAIN = {e["id"]: e for e in json.load(open(_ex_path, encoding="utf-8"))} if _ex_path.exists() else {}
 
 WIDE = r"[⺀-￯]"
 
@@ -243,6 +245,13 @@ for q in Q:
     }
     if q.get("stemkey"):
         it["sk"] = q["stemkey"]
+    e = EXPLAIN.get(q["id"])
+    if e:
+        it["ex"] = e["ex"]
+        if e["tip"]:
+            it["tip"] = e["tip"]
+        if e["wx"]:
+            it["wx"] = {str(int(k) - 1): v for k, v in e["wx"].items()}
     if img:
         it["img"] = img
     tw = [b for _, b in sorted(twins[q["id"]], reverse=True)[:2]]

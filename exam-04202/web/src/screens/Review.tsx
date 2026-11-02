@@ -1,9 +1,14 @@
 import { useMemo, useState } from 'react'
 import { bank } from '../data'
 import { probabilities } from '../engine/scheduler'
-import type { Progress } from '../engine/types'
-import { Memo } from '../components/Cards'
-import { Marked } from '../components/Marked'
+import type { Item, Progress } from '../engine/types'
+import { Explain } from '../components/Cards'
+
+function answerText(it: Item): string {
+  if (it.k !== 'm') return '答：' + (it.o[it.a[0] - 1] || `第 ${it.a[0]} 個`)
+  const wrong = it.o.filter((_, i) => !it.a.includes(i + 1))
+  return wrong.length ? '不要選：' + wrong.join('；') : '四個都選'
+}
 
 /** Everything studied so far, weakest first, as a quick list to read before the exam. */
 export function Review({ prog, onExit, onPractice }: { prog: Progress; onExit: () => void; onPractice: (ids: string[]) => void }) {
@@ -62,8 +67,9 @@ export function Review({ prog, onExit, onPractice }: { prog: Progress; onExit: (
             <ul className="review">
               {list.slice(0, limit).map((it) => (
                 <li key={it.id}>
-                  <p className="stem small">{it.sk ? <Marked text={it.q} mark={it.sk} /> : it.q}</p>
-                  <Memo it={it} />
+                  <p className="stem small">{it.q}</p>
+                  <p className="answer">{answerText(it)}</p>
+                  <Explain it={it} />
                 </li>
               ))}
             </ul>

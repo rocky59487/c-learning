@@ -544,3 +544,33 @@ input:focus-visible {
 .tips li + li {
   margin-top: 6px;
 }
+
+.explain {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  font-size: 15px;
+}
+.explain p {
+  margin: 0 !important;
+}
+.explain p + p {
+  margin-top: 6px !important;
+}
+.explain b {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 13px;
+  color: var(--pri);
+}
+.reason {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.review .answer {
+  margin: 4px 0 0;
+  font-weight: 600;
+}

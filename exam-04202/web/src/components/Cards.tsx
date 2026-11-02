@@ -1,6 +1,5 @@
 import type { Item } from '../engine/types'
 import { byId, imageOf } from '../data'
-import { Marked } from './Marked'
 
 const NUM = ['①', '②', '③', '④']
 
@@ -14,34 +13,35 @@ export function Figure({ it }: { it: Item }) {
   )
 }
 
-/** One line telling what to remember. */
-export function Memo({ it }: { it: Item }) {
-  if (it.k === 'm') {
-    const wrong = it.o.map((_, i) => i).filter((i) => !it.a.includes(i + 1))
-    if (!wrong.length) return <p className="memo">這題四個都要選。</p>
-    return (
-      <p className="memo">
-        看到{wrong.map((i) => <b key={i}>「{it.key[i] ?? it.o[i]}」</b>)}就不選，其他都選。
-      </p>
-    )
-  }
-  const a = it.a[0] - 1
-  const key = it.key[a] ?? it.o[a]
-  if (it.sk)
-    return (
-      <p className="memo">
-        題目有<b>「{it.sk}」</b>，選<b>「{key}」</b>。
-      </p>
-    )
+/** Explanation of the answer and a short way to remember it. */
+export function Explain({ it }: { it: Item }) {
+  if (!it.ex && !it.tip) return null
   return (
-    <p className="memo">
-      看到<b>「{key}」</b>就選。
-    </p>
+    <div className="explain">
+      {it.ex && (
+        <p>
+          <b>解析</b>
+          {it.ex}
+        </p>
+      )}
+      {it.tip && (
+        <p>
+          <b>記法</b>
+          {it.tip}
+        </p>
+      )}
+    </div>
   )
 }
 
+/** Why an option is wrong (multiple choice), shown under the option. */
+function Reason({ it, k }: { it: Item; k: number }) {
+  const r = it.wx?.[k]
+  return r ? <small className="reason">{r}</small> : null
+}
+
 function Twins({ it }: { it: Item }) {
-  if (!it.tw?.length) return null
+  if (!it.tw?.length || it.k === 'm') return null
   return (
     <>
       {it.tw.slice(0, 2).map((id) => {
@@ -50,7 +50,7 @@ function Twins({ it }: { it: Item }) {
         const ans = t.o[t.a[0] - 1]
         return (
           <p className="twin" key={id}>
-            <span>很像的題目</span>
+            <span>別搞混</span>
             {t.q.length > 46 ? t.q.slice(0, 46) + '…' : t.q} → <b>{ans || `第 ${t.a[0]} 個`}</b>
           </p>
         )
@@ -65,36 +65,31 @@ export function LearnCard({ it }: { it: Item }) {
   const wrong = it.o.map((_, i) => i).filter((i) => !it.a.includes(i + 1))
   return (
     <div className="card">
-      <p className="stem small">
-        {it.sk ? <Marked text={it.q} mark={it.sk} /> : it.q}
-      </p>
+      <p className="stem small">{it.q}</p>
       <Figure it={it} />
       {multi ? (
-        wrong.length ? (
-          <>
-            <p className="label bad">不要選</p>
-            {wrong.map((i) => (
-              <div className="opt bad static" key={i}>
-                <span className="n">✗</span>
+        <>
+          {it.o.map((o, i) => {
+            const right = it.a.includes(i + 1)
+            return (
+              <div className={`opt static ${right ? 'ok' : 'bad'}`} key={i}>
+                <span className="n">{right ? '✓' : '✗'}</span>
                 <span>
-                  <Marked text={it.o[i] || `圖中 ${NUM[i]}`} mark={it.key[i]} />
+                  {o || `圖中 ${NUM[i]}`}
+                  {!right && <Reason it={it} k={i} />}
                 </span>
               </div>
-            ))}
-            <p className="label">其他 {4 - wrong.length} 個都要選</p>
-          </>
-        ) : (
-          <p className="label ok">四個都要選</p>
-        )
+            )
+          })}
+          {!wrong.length && <p className="label ok">四個都要選</p>}
+        </>
       ) : (
         <div className="opt ok static big">
           <span className="n">✓</span>
-          <span>
-            <Marked text={it.o[it.a[0] - 1] || `圖中 ${NUM[it.a[0] - 1]}`} mark={it.key[it.a[0] - 1]} />
-          </span>
+          <span>{it.o[it.a[0] - 1] || `圖中 ${NUM[it.a[0] - 1]}`}</span>
         </div>
       )}
-      {(!multi || wrong.length > 0) && <Memo it={it} />}
+      <Explain it={it} />
       <Twins it={it} />
     </div>
   )
@@ -112,14 +107,15 @@ export function Solution({ it, order, chosen }: { it: Item; order: number[]; cho
           <div className={`opt static ${cls}`} key={k}>
             <span className="n">{right ? '✓' : it.k === 'm' || picked ? '✗' : NUM[i]}</span>
             <span>
-              <Marked text={it.o[k] || `圖中 ${NUM[k]}`} mark={it.key[k]} />
+              {it.o[k] || `圖中 ${NUM[k]}`}
               {picked && !right && <em className="you">你選的</em>}
               {!picked && right && it.k === 'm' && chosen && <em className="you">漏選</em>}
+              {!right && it.k === 'm' && <Reason it={it} k={k} />}
             </span>
           </div>
         )
       })}
-      <Memo it={it} />
+      <Explain it={it} />
       <Twins it={it} />
     </>
   )

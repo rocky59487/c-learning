@@ -13,6 +13,9 @@ export interface Item {
   sk?: string // stem keyword when the answer key alone is not unique
   img?: string
   tw?: string[] // look-alike questions
+  ex?: string // explanation
+  tip?: string // short way to remember
+  wx?: Record<string, string> // why a wrong option is wrong
 }
 
 export interface Bank {
