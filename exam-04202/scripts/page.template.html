@@ -1,0 +1,284 @@
+<title>工程測量乙級速背</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: field-book — one narrow column, sticky tab bar, cards like level-book rows */
+:root{
+  --bg:#eef1ec; --paper:#fbfcf9; --ink:#1d2420; --muted:#5d6a62; --rule:#d5dcd4;
+  --rod:#c2412d; --rod-soft:#f6e1dc; --ok:#2e7d4f; --ok-soft:#dcefe3; --no:#b3261e; --no-soft:#f7dedb; --chip:#e3e8e1;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --paper:#1a201d; --ink:#e4ebe6; --muted:#9aa9a0; --rule:#2c3530;
+  --rod:#ec6a52; --rod-soft:#3a211c; --ok:#6cc38f; --ok-soft:#1b3326; --no:#f08277; --no-soft:#3b1f1c; --chip:#252d29; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --paper:#1a201d; --ink:#e4ebe6; --muted:#9aa9a0; --rule:#2c3530;
+  --rod:#ec6a52; --rod-soft:#3a211c; --ok:#6cc38f; --ok-soft:#1b3326; --no:#f08277; --no-soft:#3b1f1c; --chip:#252d29; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto}
+header{padding-block:18px 6px}
+.rodbar{height:8px;border-radius:2px;background:repeating-linear-gradient(90deg,var(--rod) 0 18px,var(--paper) 18px 36px);border:1px solid var(--rule);margin-bottom:12px}
+h1{font-size:22px;margin:0;text-wrap:balance;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:13px;margin:4px 0 0}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;padding-block:10px;border-bottom:1px solid var(--rule)}
+nav button{flex:1;min-width:0;font:inherit;font-weight:500;padding:8px 4px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:8px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--rod);outline-offset:2px}
+section{padding-top:14px}
+h2{font-size:17px;margin:20px 0 8px}
+h2:first-child{margin-top:4px}
+p{margin:6px 0}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+table.stat{width:100%;border-collapse:collapse;font-size:14px}
+table.stat td{padding:6px 4px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.stat td:last-child{text-align:right;white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.verdict{font-size:12px;padding:1px 6px;border-radius:4px;margin-left:4px;white-space:nowrap}
+.v-no{background:var(--no-soft);color:var(--no)} .v-ok{background:var(--ok-soft);color:var(--ok)} .v-mid{background:var(--chip);color:var(--muted)}
+.plan{display:grid;gap:8px;margin:8px 0}
+.plan div{display:grid;grid-template-columns:72px 1fr;gap:10px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:10px 12px}
+.plan b.mono{color:var(--rod)}
+.tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.chip{font:inherit;font-size:13px;padding:5px 10px;border-radius:999px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--rod);border-color:var(--rod);color:#fff}
+input[type=search],select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);min-width:0}
+input[type=search]{flex:1 1 160px}
+label.tg{font-size:13px;color:var(--muted);display:flex;gap:4px;align-items:center}
+.prog{font-size:13px;color:var(--muted);margin:0 0 8px}
+.prog .bar{height:4px;background:var(--chip);border-radius:2px;margin-top:4px;overflow:hidden}
+.prog .bar i{display:block;height:100%;background:var(--ok)}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}
+.stem{margin:0 0 8px}
+.imgbox{overflow-x:auto;margin:6px 0;border:1px solid var(--rule);border-radius:6px;background:#fff}
+.imgbox img{display:block;width:640px;max-width:none;height:auto}
+.imgnote{font-size:12px;color:var(--muted);margin:0 0 6px}
+.ans{font-weight:700;color:var(--ok);background:var(--ok-soft);border-radius:6px;padding:6px 10px}
+.neg{display:inline-block;font-size:12px;font-weight:700;color:var(--no);background:var(--no-soft);border-radius:4px;padding:0 6px;margin-right:6px}
+ul.opts{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+ul.opts li{padding:5px 10px;border-radius:6px;display:flex;gap:8px}
+ul.opts li.t{background:var(--ok-soft);color:var(--ink)}
+ul.opts li.f{background:var(--no-soft);color:var(--no);font-weight:500}
+ul.opts li b{flex:none;width:1.2em}
+.hide .ans,.hide ul.opts{filter:blur(6px);cursor:pointer}
+.row{display:flex;justify-content:flex-end;margin-top:8px}
+.learn{font:inherit;font-size:13px;border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:6px;padding:3px 10px;cursor:pointer}
+.learn[aria-pressed="true"]{color:var(--ok);border-color:var(--ok)}
+.more{display:block;width:100%;font:inherit;padding:10px;border:1px dashed var(--rule);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer}
+.q-opt{display:block;width:100%;text-align:left;font:inherit;padding:10px 12px;margin:6px 0;border:1px solid var(--rule);border-radius:8px;background:var(--paper);color:var(--ink);cursor:pointer}
+.q-opt[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.q-opt.right{background:var(--ok-soft);border-color:var(--ok);box-shadow:inset 0 0 0 1px var(--ok)}
+.q-opt.right::before{content:"✓ 正解　";color:var(--ok);font-weight:700}
+.q-opt.wrong{background:var(--no-soft);border-color:var(--no);box-shadow:inset 0 0 0 1px var(--no)}
+.q-opt.wrong::before{content:"✗ 你選的　";color:var(--no);font-weight:700}
+.primary{font:inherit;font-weight:700;padding:10px 18px;border:0;border-radius:8px;background:var(--ink);color:var(--paper);cursor:pointer}
+.qbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0;flex-wrap:wrap}
+.score{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.fb{font-weight:700;margin:8px 0}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--no)}
+.empty{color:var(--muted);text-align:center;padding:24px 0}
+small.src{color:var(--muted);font-size:12px}
+@media (prefers-reduced-motion:no-preference){.q-opt,.chip,nav button{transition:background .15s,border-color .15s}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="rodbar" aria-hidden="true"></div>
+  <h1>04202 工程測量乙級 學科速背</h1>
+  <p class="sub">官方題庫 A11 全部 1,157 題 · 已按「每背一題能拿幾分」排好順序</p>
+</header>
+<nav role="tablist">
+  <button role="tab" id="tab-plan" aria-selected="true" data-v="plan">策略</button>
+  <button role="tab" id="tab-study" aria-selected="false" data-v="study">速背</button>
+  <button role="tab" id="tab-quiz" aria-selected="false" data-v="quiz">測驗</button>
+  <button role="tab" id="tab-wrong" aria-selected="false" data-v="wrong">錯題</button>
+</nav>
+
+<section id="v-plan">
+  <h2>考試長這樣</h2>
+  <table class="stat">
+    <tr><td>單選 60 題，每題 1 分<br><small class="src">其中約 16 題是共同科目（職安、倫理、環保、節能各 4 題），約 44 題專業</small></td><td>60 分</td></tr>
+    <tr><td>複選 20 題，每題 2 分，<b>全對才給分</b>、不倒扣<br><small class="src">全部出自專業題庫</small></td><td>40 分</td></tr>
+    <tr><td><b>及格</b></td><td>60 分</td></tr>
+  </table>
+  <p><small class="src">正式考試會打亂選項順序：背「答案內容」，不要背號碼。</small></p>
+
+  <h2>每背一題，平均值幾分</h2>
+  <table class="stat">
+    <tr><td>複選（題庫 180 題，考 20 題 × 2 分）</td><td>0.22 分/題</td></tr>
+    <tr><td>專業單選（題庫 578 題，考約 44 題）</td><td>0.08 分/題</td></tr>
+    <tr><td>共同單選（題庫 399 題，考約 16 題）</td><td>0.04 分/題</td></tr>
+  </table>
+  <p>複選的效率是專業單選的 3 倍、共同科目的 5.5 倍。所以先背複選。</p>
+
+  <h2>題庫統計：哪些「規律」是真的</h2>
+  <table class="stat">
+    <tr><td>單選選「最長的選項」<span class="verdict v-no">沒用</span></td><td>28%</td></tr>
+    <tr><td>單選選「最短的選項」<span class="verdict v-no">沒用</span></td><td>31%</td></tr>
+    <tr><td>單選選「跟其他選項最像的」<span class="verdict v-no">沒用</span></td><td>22%</td></tr>
+    <tr><td>單選答案號碼分布 ①131 ②169 ③160 ④118<span class="verdict v-no">考試會打亂</span></td><td>—</td></tr>
+    <tr><td>數字計算題：選「中間兩個值」之一<span class="verdict v-mid">只在完全不會時用</span></td><td>57%</td></tr>
+    <tr><td>複選答案個數：2 個 76 題、3 個 95 題、4 個 9 題、1 個 0 題<span class="verdict v-ok">有用</span></td><td>95% 是 2–3 個</td></tr>
+    <tr><td>複選任一選項是對的機率<span class="verdict v-ok">有用</span></td><td>66%</td></tr>
+    <tr><td>複選選項含「可以消除」<span class="verdict v-mid">樣本少</span></td><td>只有 36% 是對的</td></tr>
+    <tr><td>複選選項含「一定／必須／只要／均…」等絕對用語<span class="verdict v-mid">弱</span></td><td>57% 是對的</td></tr>
+  </table>
+  <p><small class="src">隨便猜的正確率是 25%，所以 22–31% 等於沒有規律。截圖裡那種「看到某字就選某個」的規則，在這份題庫上測不出效果。真正有效的只有複選題的答案個數。</small></p>
+
+  <h2>完全不會時怎麼猜</h2>
+  <div class="plan">
+    <div><b class="mono">複選</b><span>選 3 個：把最可疑的一個刪掉，其餘全選。絕對不要只選 1 個；只有 9 題是 4 個全選，名單在「速背」最上面。</span></div>
+    <div><b class="mono">計算</b><span>4 個數字由小到大排，選第 2 或第 3 個。</span></div>
+    <div><b class="mono">共同</b><span>選最守法、最安全、最環保、最誠實的那個；題目問「錯誤／何者非」時反過來。</span></div>
+  </div>
+
+  <h2>60 分鐘怎麼用</h2>
+  <div class="plan">
+    <div><b class="mono">0–25′</b><span>速背 → 複選 180 題。每題只看紅色 ✗ 的選項，記住「哪句是錯的」，其他都選。</span></div>
+    <div><b class="mono">25–48′</b><span>速背 → 專業單選。看題目關鍵字＋綠色答案。計算題直接記答案數值（考試數字跟題庫一樣）。</span></div>
+    <div><b class="mono">48–55′</b><span>速背 → 共同科目，快速掃過，大多是常識題。</span></div>
+    <div><b class="mono">55–60′</b><span>測驗 → 複選，錯的題目自動進「錯題」，進考場前再看一次。</span></div>
+  </div>
+  <p><small class="src">題庫來源：勞動部技能檢定中心公告 04202 工程測量乙級學科題庫（2018 公告版，與 2025 年 10 月線上版逐題一致），共同科目 90006（115 年適用版）、90007、90008、90009（114 年公告版）。已刪除 12 題公告刪題。</small></p>
+</section>
+
+<section id="v-study" hidden>
+  <div class="tools">
+    <button class="chip" data-t="1" aria-pressed="true">複選 180</button>
+    <button class="chip" data-t="2" aria-pressed="false">專業單選 578</button>
+    <button class="chip" data-t="3" aria-pressed="false">共同 399</button>
+  </div>
+  <div class="tools">
+    <select id="sec" aria-label="工作項目"></select>
+    <input type="search" id="q" placeholder="搜尋題目關鍵字，例如 視準軸" aria-label="搜尋">
+  </div>
+  <div class="tools">
+    <label class="tg"><input type="checkbox" id="hideLearned"> 隱藏已記住</label>
+    <label class="tg"><input type="checkbox" id="cover"> 遮住答案（點一下顯示）</label>
+  </div>
+  <div class="prog" id="prog"></div>
+  <div id="list"></div>
+</section>
+
+<section id="v-quiz" hidden>
+  <div class="tools">
+    <button class="chip" data-qt="1" aria-pressed="true">複選</button>
+    <button class="chip" data-qt="2" aria-pressed="false">專業單選</button>
+    <button class="chip" data-qt="3" aria-pressed="false">共同</button>
+  </div>
+  <div class="qbar"><span class="score" id="score">0 / 0</span><button class="chip" id="skip">換一題</button></div>
+  <div id="quiz"></div>
+</section>
+
+<section id="v-wrong" hidden>
+  <div class="qbar"><span class="score" id="wcount"></span><button class="chip" id="wclear">清空錯題</button></div>
+  <div id="wlist"></div>
+</section>
+</div>
+
+<script>
+const CARDS=__CARDS__;
+const IMGS=__IMGS__;
+const C="①②③④";
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let learned=new Set(store.get("learned",[])), wrong=new Set(store.get("wrong",[]));
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=s=>document.querySelector(s);
+
+// tabs
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.v));
+function show(v){document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===v));
+  ["plan","study","quiz","wrong"].forEach(x=>$("#v-"+x).hidden=x!==v);
+  if(v==="study")renderList(); if(v==="quiz"&&!cur)nextQ(); if(v==="wrong")renderWrong(); store.set("tab",v);}
+
+// study
+let tier=1, shown=40;
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{tier=+b.dataset.t;document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-pressed",x===b));fillSec();shown=40;renderList()});
+function fillSec(){const secs=[...new Set(CARDS.filter(c=>c.t===tier).map(c=>c.sec))];
+  $("#sec").innerHTML='<option value="">全部工作項目</option>'+secs.map(s=>`<option>${esc(s)}</option>`).join("");}
+["#sec","#q","#hideLearned","#cover"].forEach(s=>$(s).addEventListener("input",()=>{shown=40;renderList()}));
+
+function cardHTML(c,opts={}){
+  const img=c.img&&IMGS[c.img]?`<div class="imgbox"><img alt="原題截圖，題號後括號內是答案" src="${IMGS[c.img]}"></div><p class="imgnote">原題截圖可左右滑動，題號後括號內是官方答案</p>`:"";
+  let body;
+  if(c.ans.length>1){
+    const all4=c.ans.length===4;
+    body=`<ul class="opts">${c.opts.map((o,i)=>{const t=c.ans.includes(i+1);return `<li class="${t?"t":"f"}"><b>${t?"✓":"✗"}</b><span>${o?esc(o):"（見圖）"}</span></li>`}).join("")}</ul>`+(all4?'<p class="ans" style="margin-top:6px">4 個全選</p>':"");
+  }else{
+    const a=c.opts[c.ans[0]-1];
+    body=`<div class="ans">${c.neg?'<span class="neg">問錯的</span>':""}${a?esc(a):"見圖中第 "+C[c.ans[0]-1]+" 個"}</div>`;
+  }
+  const L=learned.has(c.id);
+  return `<article class="card${opts.cover?" hide":""}" data-id="${c.id}">
+    <div class="meta"><span>${esc(c.sec)}</span><span class="mono">${c.ans.length>1?"複選 "+c.ans.length+" 個":""}</span></div>
+    <p class="stem">${esc(c.stem)}</p>${img}${body}
+    ${opts.noLearn?"":`<div class="row"><button class="learn" aria-pressed="${L}">${L?"已記住 ✓":"記住了"}</button></div>`}</article>`;
+}
+function filtered(){
+  const sec=$("#sec").value, q=$("#q").value.trim(), hide=$("#hideLearned").checked;
+  let r=CARDS.filter(c=>c.t===tier&&(!sec||c.sec===sec)&&(!q||c.stem.includes(q)||c.opts.some(o=>o.includes(q)))&&!(hide&&learned.has(c.id)));
+  if(tier===1) r.sort((a,b)=>(b.ans.length===4)-(a.ans.length===4)); // 4-answer ones first
+  return r;
+}
+function renderList(){
+  const r=filtered(), all=CARDS.filter(c=>c.t===tier), done=all.filter(c=>learned.has(c.id)).length;
+  $("#prog").innerHTML=`已記住 <span class="mono">${done} / ${all.length}</span>　符合 <span class="mono">${r.length}</span> 題<div class="bar"><i style="width:${100*done/all.length}%"></i></div>`;
+  const cover=$("#cover").checked;
+  $("#list").innerHTML=r.length?r.slice(0,shown).map(c=>cardHTML(c,{cover})).join("")+(r.length>shown?`<button class="more" id="more">再顯示 40 題（還有 ${r.length-shown}）</button>`:""):'<p class="empty">沒有符合的題目</p>';
+  const m=$("#more"); if(m)m.onclick=()=>{shown+=40;renderList()};
+}
+$("#list").addEventListener("click",e=>{
+  const card=e.target.closest(".card"); if(!card)return;
+  if(card.classList.contains("hide")&&(e.target.closest(".ans")||e.target.closest(".opts"))){card.classList.remove("hide");return}
+  const b=e.target.closest(".learn"); if(!b)return;
+  const id=card.dataset.id; learned.has(id)?learned.delete(id):learned.add(id); store.set("learned",[...learned]);
+  const L=learned.has(id); b.setAttribute("aria-pressed",L); b.textContent=L?"已記住 ✓":"記住了";
+});
+
+// quiz
+let qt=1, cur=null, ok=0, tot=0;
+document.querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>{qt=+b.dataset.qt;document.querySelectorAll("[data-qt]").forEach(x=>x.setAttribute("aria-pressed",x===b));nextQ()});
+$("#skip").onclick=()=>nextQ();
+function nextQ(){
+  const pool=CARDS.filter(c=>c.t===qt); cur=pool[Math.floor(Math.random()*pool.length)];
+  const hasImg=!!cur.img; const order=[0,1,2,3];
+  if(!hasImg) for(let i=3;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+  cur._order=order; cur._sel=new Set();
+  const multi=cur.ans.length>1;
+  $("#quiz").innerHTML=`<div class="card"><div class="meta"><span>${esc(cur.sec)}</span><span>${multi?"複選":"單選"}</span></div>
+   <p class="stem">${esc(cur.stem)}</p>${hasImg&&IMGS[cur.img]?`<div class="imgbox"><img alt="原題截圖" src="${IMGS[cur.img]}" style="clip-path:inset(0 0 0 9%)"></div>`:""}
+   ${order.map((k,i)=>`<button class="q-opt" data-k="${k}" aria-pressed="false">${hasImg?C[k]+" ":""}${cur.opts[k]?esc(cur.opts[k]):"（見圖 "+C[k]+"）"}</button>`).join("")}
+   ${multi?'<div class="row"><button class="primary" id="submit">送出</button></div>':""}<div id="fb"></div></div>`;
+  document.querySelectorAll(".q-opt").forEach(b=>b.onclick=()=>{
+    if(cur._done)return; const k=+b.dataset.k;
+    if(multi){cur._sel.has(k)?cur._sel.delete(k):cur._sel.add(k);b.setAttribute("aria-pressed",cur._sel.has(k))}
+    else{cur._sel=new Set([k]);grade()}
+  });
+  const s=$("#submit"); if(s)s.onclick=grade;
+}
+function grade(){
+  if(cur._done)return; cur._done=true;
+  const right=new Set(cur.ans.map(a=>a-1)); const sel=cur._sel;
+  const good=sel.size===right.size&&[...sel].every(k=>right.has(k));
+  document.querySelectorAll(".q-opt").forEach(b=>{const k=+b.dataset.k;if(right.has(k))b.classList.add("right");else if(sel.has(k))b.classList.add("wrong")});
+  tot++; if(good)ok++; else{wrong.add(cur.id);store.set("wrong",[...wrong])}
+  $("#score").textContent=`${ok} / ${tot}`;
+  $("#fb").innerHTML=`<p class="fb ${good?"ok":"no"}">${good?"答對":"答錯，已加入錯題"}</p><div class="row"><button class="primary" id="next">下一題</button></div>`;
+  $("#next").onclick=nextQ;
+}
+
+// wrong
+function renderWrong(){
+  const r=CARDS.filter(c=>wrong.has(c.id)).sort((a,b)=>a.t-b.t);
+  $("#wcount").textContent=`錯題 ${r.length} 題`;
+  $("#wlist").innerHTML=r.length?r.map(c=>cardHTML(c,{noLearn:true})).join(""):'<p class="empty">還沒有錯題。到「測驗」做幾題，答錯的會出現在這裡。</p>';
+}
+$("#wclear").onclick=()=>{wrong=new Set();store.set("wrong",[]);renderWrong()};
+
+fillSec();
+const t0=store.get("tab","plan"); if(t0!=="plan")show(t0);
+</script>
