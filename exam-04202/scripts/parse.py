@@ -13,6 +13,18 @@ FOOTER = re.compile(r"^\s*(Page \d+ of \d+|\d+\s*/\s*\d+|第\s*\d+\s*頁.*)\s*$"
 OPT_SPLIT = re.compile(r"[①②③④]")
 
 
+def is_wide(ch):
+    return ord(ch) > 0x2E7F
+
+
+def join_line(a, b):
+    """Join a wrapped line: no space between two CJK/full-width characters."""
+    a = a.rstrip()
+    if a and b and is_wide(a[-1]) and is_wide(b[0]) and b[0] not in "①②③④":
+        return a + b
+    return a + " " + b
+
+
 def clean(s):
     s = re.sub(r"\s+", " ", s).strip()
     return s
@@ -41,7 +53,14 @@ def split_options(body):
     last = opts[3]
     m = re.search(r"\s{2,}(\S.*)$", last.strip())
     opts = [clean(o).rstrip("。").strip() for o in opts]
-    return clean(stem), opts
+    stem = clean(stem)
+    # text after option 4 that belongs to the stem, e.g. "④15cm 之高差" -> stem "...約有＿＿之高差"
+    m = re.match(r"^(.*?)\s+([之的為表時，,].{1,12})$", opts[3])
+    short = max(len(o) for o in opts[:3]) if all(opts[:3]) else 99
+    if m and short <= 14 and len(m.group(1)) <= short + 6 and " " not in m.group(1):
+        opts[3] = m.group(1).strip()
+        stem = stem.rstrip() + "＿＿" + m.group(2).strip()
+    return stem, opts
 
 
 def parse_file(path, bank):
@@ -69,7 +88,7 @@ def parse_file(path, bank):
             }
         elif cur is not None:
             if ln.strip():
-                cur["raw"] += " " + ln.strip()
+                cur["raw"] = join_line(cur["raw"], ln.strip())
     if cur:
         qs.append(cur)
     out = []
