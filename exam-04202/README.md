@@ -13,3 +13,13 @@ python3 -I scripts/analyze.py data/questions.json
 python3 -I scripts/build.py data/questions.json img/index.json data/cards.json 速背清單.md
 python3 -I scripts/assemble.py scripts/page.template.html data/cards.json img 04202速背.html
 ```
+
+## 背題 App
+- `背題App.html`：單檔版，手機瀏覽器直接開。
+- `app/pwa/`：可安裝版（PWA）。放到任何 HTTPS 靜態主機（例如 GitHub Pages）後，用 Android Chrome 開啟 →「加到主畫面」，就會像 App 一樣全螢幕、離線可用。
+- 重新產生：
+```
+python3 -I scripts/build_app.py data/questions.json data/triggers.json img/index.json data/app_items.json
+python3 -I scripts/assemble_app.py app/template.html data/app_items.json img data/triggers.json 背題App.html
+python3 -I scripts/assemble_app.py app/template.html data/app_items.json img data/triggers.json app/pwa/index.html --pwa
+```

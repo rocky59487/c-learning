@@ -1,0 +1,384 @@
+<title>工程測量乙級學科</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+__PWA_HEAD__
+<style>
+/* Layout: classic quiz app — top app bar, single column, full-width option buttons */
+:root{
+  --bg:#f4f6f8; --card:#ffffff; --fg:#1f2933; --muted:#65727e; --line:#dde3e8;
+  --pri:#1d5fa8; --pri-fg:#ffffff; --pri-soft:#e6eef8;
+  --ok:#23804a; --ok-soft:#e3f3e9; --bad:#c0352b; --bad-soft:#fbe6e4; --key:#fff1b8; --key-fg:#5c4400;
+  --font:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111518; --card:#1b2126; --fg:#e3e8ec; --muted:#97a3ad; --line:#2d353c;
+  --pri:#5c9be0; --pri-fg:#0d1720; --pri-soft:#1c2a3a;
+  --ok:#5cc187; --ok-soft:#173022; --bad:#ef7a70; --bad-soft:#3a1d1a; --key:#5a4a12; --key-fg:#ffe9a6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111518; --card:#1b2126; --fg:#e3e8ec; --muted:#97a3ad; --line:#2d353c;
+  --pri:#5c9be0; --pri-fg:#0d1720; --pri-soft:#1c2a3a;
+  --ok:#5cc187; --ok-soft:#173022; --bad:#ef7a70; --bad-soft:#3a1d1a; --key:#5a4a12; --key-fg:#ffe9a6; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--pri)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--pri);color:var(--pri-fg);
+  padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  height:52px;display:flex;align-items:center;gap:6px}
+.bar h1{font-size:17px;font-weight:600;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar button{font:inherit;background:transparent;border:0;color:inherit;padding:8px 10px;border-radius:6px;cursor:pointer}
+.bar .back{font-size:20px;line-height:1;padding:6px 10px}
+.bar .info{font-size:14px;opacity:.9;white-space:nowrap}
+main{max-width:680px;margin:0 auto;padding-block:14px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.score{display:flex;align-items:baseline;gap:8px}
+.score b{font-size:44px;line-height:1.1;font-variant-numeric:tabular-nums}
+.score span{color:var(--muted)}
+.meter{position:relative;height:10px;background:var(--line);border-radius:5px;margin:10px 0 4px;overflow:hidden}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--pri);border-radius:5px}
+.meter s{position:absolute;top:0;bottom:0;width:2px;background:var(--bad);left:60%}
+.mlab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.muted{color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stats div{background:var(--bg);border-radius:8px;padding:8px;text-align:center;min-width:0}
+.stats b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.stats small{color:var(--muted);font-size:12px}
+.btn{display:block;width:100%;font:inherit;font-weight:600;padding:14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;text-align:left}
+.btn.pri{background:var(--pri);color:var(--pri-fg);border-color:var(--pri);text-align:center}
+.btn small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.btn.pri small{color:inherit;opacity:.85}
+.menu{display:grid;gap:10px;margin-bottom:12px}
+.row{display:flex;gap:10px;margin-top:12px}
+.row .btn{text-align:center}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:4px;background:var(--pri-soft);color:var(--pri);margin-right:6px;vertical-align:1px}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.learn{background:var(--key);color:var(--key-fg)}
+.qhead{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.stem{font-size:17px;margin:0 0 12px}
+.imgbox{overflow-x:auto;margin:0 0 10px;border:1px solid var(--line);border-radius:6px;background:#fff}
+.imgbox img{display:block;width:640px;max-width:none;height:auto}
+.opt{display:flex;gap:10px;width:100%;text-align:left;font:inherit;padding:12px 14px;margin:8px 0;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+.opt .n{flex:none;font-weight:600;color:var(--muted)}
+.opt.sel{border-color:var(--pri);background:var(--pri-soft)}
+.opt.sel .n{color:var(--pri)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.ok .n{color:var(--ok)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt.bad .n{color:var(--bad)}
+.opt.dim{opacity:.55}
+.opt[disabled]{cursor:default}
+mark{background:var(--key);color:var(--key-fg);border-radius:3px;padding:0 2px}
+.note{font-size:14px;border-radius:8px;padding:8px 12px;margin-top:10px;background:var(--bg)}
+.note b{color:var(--fg)}
+.fb{font-weight:700;margin:10px 0 0}
+.fb.ok{color:var(--ok)} .fb.bad{color:var(--bad)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ok);color:#fff;padding:8px 18px;border-radius:20px;font-weight:700;pointer-events:none}
+.list .card{padding:12px 14px}
+.list .a{color:var(--ok);font-weight:600}
+.list .x{color:var(--bad)}
+input[type=search]{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);margin-bottom:12px}
+.keys{list-style:none;padding:0;margin:0}
+.keys li{display:grid;grid-template-columns:2.4em 2.2em 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.keys .i{color:var(--muted);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.keys .k{font-size:12px;font-weight:700;border-radius:4px;text-align:center}
+.keys .k.p{background:var(--ok-soft);color:var(--ok)} .keys .k.d{background:var(--bad-soft);color:var(--bad)}
+.keys .t{min-width:0;word-break:break-word}
+.keys .t b{font-size:17px}
+.keys .t small{display:block;color:var(--muted);font-size:13px}
+.keys li.ms{display:block;color:var(--pri);font-weight:700;font-size:14px;border-bottom:2px solid var(--pri)}
+.palette{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:10px}
+.palette button{font:inherit;font-size:12px;padding:6px 0;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--fg);cursor:pointer;font-variant-numeric:tabular-nums}
+.palette button.done{background:var(--pri-soft);border-color:var(--pri)}
+.palette button.cur{outline:2px solid var(--pri)}
+.palette button.ok{background:var(--ok-soft);border-color:var(--ok)}
+.palette button.bad{background:var(--bad-soft);border-color:var(--bad)}
+label.set{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+label.set input{margin-top:5px}
+button:focus-visible,input:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+@media (max-width:380px){.palette{grid-template-columns:repeat(8,1fr)}}
+</style>
+
+<header class="bar"><button class="back" id="back" aria-label="返回" hidden>‹</button><h1 id="title">工程測量乙級學科</h1><span class="info" id="info"></span></header>
+<main id="main"></main>
+
+<script>
+const ITEMS=__ITEMS__;
+const IMGS=__IMGS__;
+const TRIG=__TRIG__;
+const NUM="①②③④";
+const VAL=[40/180*(1-0.13),44/578*0.75,16/399*0.75], BASE=44*0.25+16*0.25+40*0.13;
+const byId={}; ITEMS.forEach((it,i)=>{byId[it[0]]={id:it[0],k:it[1],sec:it[2],stem:it[3],opts:it[4],ans:it[5],img:it[6],keys:it[7],tw:it[8],ord:i}});
+const ORDER=ITEMS.map(it=>it[0]);
+const KIND=["複選","專業單選","共同"];
+
+// ---------- storage ----------
+const SKEY="e04202-v1";
+let S={st:{},wr:{},set:{preview:true,strong:false}};
+try{const v=JSON.parse(localStorage.getItem(SKEY)||"null");if(v&&v.st)S=Object.assign(S,v)}catch(e){}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}}
+const mastered=id=>S.st[id]===2;
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s), main=$("#main");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function hl(text,tok){
+  if(!tok)return esc(text);
+  const flat=text.replace(/\s+/g,""), i=flat.indexOf(tok);
+  if(i<0)return esc(text);
+  return esc(flat.slice(0,i))+"<mark>"+esc(tok)+"</mark>"+esc(flat.slice(i+tok.length));
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function ev(){let s=BASE;for(const id in S.st)if(S.st[id]===2&&byId[id])s+=VAL[byId[id].k];return s}
+function toPass(){let s=ev(),n=0;if(s>=60)return 0;for(const id of ORDER){if(mastered(id))continue;s+=VAL[byId[id].k];n++;if(s>=60)return n}return n}
+function imgHTML(q){return q.img&&IMGS[q.img]?`<div class="imgbox"><img alt="原題附圖" src="${IMGS[q.img]}"></div>`:""}
+function setBar(title,info,back){$("#title").textContent=title;$("#info").textContent=info||"";$("#back").hidden=!back}
+$("#back").onclick=()=>{location.hash="home"};
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),650)}
+
+// ---------- home ----------
+function home(){
+  setBar("工程測量乙級學科","",false);
+  const e=ev(), cnt=[0,0,0], tot=[0,0,0];
+  ITEMS.forEach(it=>{tot[it[1]]++;if(mastered(it[0]))cnt[it[1]]++});
+  const need=toPass(), nw=Object.keys(S.wr).length;
+  main.innerHTML=`
+  <div class="card">
+    <div class="muted">預估分數</div>
+    <div class="score"><b>${e.toFixed(0)}</b><span>/ 100　及格 60</span></div>
+    <div class="meter"><i style="width:${Math.min(100,e)}%"></i><s></s></div>
+    <div class="mlab"><span>0</span><span>${need?`再背 ${need} 題可達 60 分`:"已達及格線"}</span><span>100</span></div>
+    <div class="stats">${[0,1,2].map(k=>`<div><b>${cnt[k]}/${tot[k]}</b><small>${KIND[k]}</small></div>`).join("")}</div>
+  </div>
+  <div class="menu">
+    <button class="btn pri" id="go">${Object.keys(S.st).length?"繼續背題":"開始背題"}<small>依得分效率排序，先背最划算的題目</small></button>
+    <button class="btn" data-h="exam">模擬考<small>80 題，選項打亂，交卷後算分</small></button>
+    <button class="btn" data-h="wrong">錯題本<small>${nw} 題</small></button>
+    <button class="btn" data-h="keys">口訣表<small>看到就選／看到就刪，共 ${TRIG.length} 條</small></button>
+    <button class="btn" data-h="settings">設定</button>
+  </div>
+  <p class="muted">預估分數＝已背熟的題目算答對，其餘以猜題機率計算。考試時選項順序會打亂，請記答案內容。</p>`;
+  $("#go").onclick=()=>{location.hash="study"};
+  main.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{location.hash=b.dataset.h});
+}
+
+// ---------- study engine ----------
+// new card: show answer (learn) -> test after ~5 cards -> correct: mastered (or one more test in 加強 mode)
+let ses=null;
+function startStudy(pool){
+  ses={step:0,pending:[],pool:pool||null,done:0,cur:null};
+  nextCard();
+}
+function nextNew(){
+  const src=ses.pool||ORDER;
+  for(const id of src){if(!mastered(id)&&!ses.pending.some(p=>p.id===id)&&!(ses.pool&&ses.seen&&ses.seen.has(id)))return id}
+  return null;
+}
+function nextCard(){
+  ses.step++;
+  ses.pending.sort((a,b)=>a.due-b.due);
+  let p=ses.pending[0];
+  if(p&&p.due<=ses.step){ses.pending.shift();return showTest(p.id,p.stage)}
+  const id=nextNew();
+  if(id){
+    if(ses.pool){ses.seen=ses.seen||new Set();ses.seen.add(id)}
+    if(S.set.preview&&!ses.pool)return showLearn(id);
+    return showTest(id,1);
+  }
+  if(p){ses.pending.shift();return showTest(p.id,p.stage)}
+  main.innerHTML=`<div class="card"><p>${ses.pool?"錯題都練完了。":"全部題目都背過了。"}</p><button class="btn pri" id="h">回首頁</button></div>`;
+  $("#h").onclick=()=>{location.hash="home"};
+}
+function studyBar(){const e=ev();setBar(ses.pool?"錯題練習":"背題",`預估 ${e.toFixed(0)} 分`,true)}
+function twinNote(q){
+  if(q.k===0||!q.tw.length)return "";
+  return q.tw.slice(0,2).map(t=>{const o=byId[t];return `<div class="note"><b>易混題</b>　${esc(o.stem.slice(0,60))}${o.stem.length>60?"…":""} → <b>${esc(o.opts[o.ans[0]-1]||"見圖")}</b></div>`}).join("");
+}
+function answerBlock(q,order){
+  // options in the given order, marked right/wrong with memory keys highlighted
+  return order.map((k,i)=>{
+    const right=q.ans.includes(k+1), tok=q.keys[k];
+    const txt=q.opts[k]?hl(q.opts[k],tok):`見圖 ${NUM[k]}`;
+    const cls=right?"ok":(q.k===0?"bad":"dim");
+    return `<div class="opt ${cls}" ><span class="n">${right?"✓":(q.k===0?"✗":NUM[i])}</span><span>${txt}</span></div>`;
+  }).join("");
+}
+function hint(q){
+  if(q.k===0){
+    if(q.ans.length===4)return `<div class="note"><b>記：</b>這題 4 個全選。</div>`;
+    const ws=[0,1,2,3].filter(k=>!q.ans.includes(k+1)).map(k=>q.keys[k]).filter(Boolean);
+    return ws.length?`<div class="note"><b>記：</b>看到「${ws.map(esc).join("」「")}」就不選，其他全選。</div>`:"";
+  }
+  const t=q.keys[q.ans[0]-1];
+  return t?`<div class="note"><b>記：</b>看到「${esc(t)}」就選。</div>`:"";
+}
+function showLearn(id){
+  const q=byId[id]; studyBar();
+  main.innerHTML=`<div class="card">
+    <div class="qhead"><span><span class="tag learn">新題</span>${KIND[q.k]}・${esc(q.sec)}</span><span>${q.k===0?q.ans.length+" 個答案":""}</span></div>
+    <p class="stem">${esc(q.stem)}</p>${imgHTML(q)}
+    ${answerBlock(q,[0,1,2,3])}${hint(q)}${twinNote(q)}
+  </div>
+  <button class="btn pri" id="nx">記住了，下一題</button>`;
+  ses.pending.push({id,due:ses.step+5,stage:1});
+  S.st[id]=S.st[id]||1; save();
+  $("#nx").onclick=nextCard;
+}
+function showTest(id,stage){
+  const q=byId[id]; studyBar();
+  const order=q.img?[0,1,2,3]:shuffle([0,1,2,3]), multi=q.k===0, sel=new Set();
+  main.innerHTML=`<div class="card">
+    <div class="qhead"><span><span class="tag">測驗</span>${KIND[q.k]}・${esc(q.sec)}</span><span>${multi?"複選":"單選"}</span></div>
+    <p class="stem">${esc(q.stem)}</p>${imgHTML(q).replace(/<img /,'<img style="clip-path:inset(0 0 0 9%)" ')}
+    <div id="opts">${order.map((k,i)=>`<button class="opt" data-k="${k}"><span class="n">${NUM[i]}</span><span>${q.opts[k]?esc(q.opts[k]):"見圖 "+NUM[k]}</span></button>`).join("")}</div>
+    <div id="fb"></div>
+  </div>
+  <div class="row">${multi?'<button class="btn pri" id="ok">確定</button>':""}<button class="btn" id="idk">不會，看答案</button></div>`;
+  const grade=(given)=>{
+    const right=new Set(q.ans.map(a=>a-1));
+    const good=given&&given.size===right.size&&[...given].every(k=>right.has(k));
+    if(good){
+      if(stage===1&&S.set.strong&&!ses.pool)ses.pending.push({id,due:ses.step+15,stage:2});
+      else{S.st[id]=2;delete S.wr[id]}
+      save();toast("答對");setTimeout(nextCard,450);return;
+    }
+    S.st[id]=1;S.wr[id]=1;save();
+    ses.pending.push({id,due:ses.step+4,stage:1});
+    main.querySelector(".card").innerHTML=`
+      <div class="qhead"><span><span class="tag bad">答錯</span>${KIND[q.k]}・${esc(q.sec)}</span><span>${multi?q.ans.length+" 個答案":""}</span></div>
+      <p class="stem">${esc(q.stem)}</p>${imgHTML(q)}${answerBlock(q,order)}${hint(q)}${twinNote(q)}`;
+    main.querySelector(".row").innerHTML='<button class="btn pri" id="nx">下一題</button>';
+    $("#nx").onclick=nextCard;
+  };
+  main.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;
+    if(multi){sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle("sel",sel.has(k))}
+    else grade(new Set([k]));
+  });
+  if(multi)$("#ok").onclick=()=>grade(sel);
+  $("#idk").onclick=()=>grade(null);
+}
+
+// ---------- mock exam ----------
+let ex=null;
+function examStart(){
+  const by=k=>ITEMS.filter(it=>it[1]===k).map(it=>it[0]);
+  const com={};ITEMS.filter(it=>it[1]===2).forEach(it=>{(com[it[2]]=com[it[2]]||[]).push(it[0])});
+  let qs=shuffle(by(1)).slice(0,44);
+  for(const s in com)qs=qs.concat(shuffle(com[s]).slice(0,4));
+  qs=shuffle(qs).concat(shuffle(by(0)).slice(0,20));
+  ex={qs:qs.map(id=>({id,order:byId[id].img?[0,1,2,3]:shuffle([0,1,2,3]),sel:new Set()})),i:0,done:false};
+  examShow();
+}
+function examShow(){
+  const e=ex.qs[ex.i], q=byId[e.id], multi=q.k===0;
+  setBar("模擬考",`${ex.i+1} / ${ex.qs.length}`,true);
+  const right=new Set(q.ans.map(a=>a-1));
+  main.innerHTML=`<div class="card">
+    <div class="qhead"><span>第 ${ex.i+1} 題・${multi?"複選（2 分）":"單選（1 分）"}</span><span>${ex.done?esc(q.sec):""}</span></div>
+    <p class="stem">${esc(q.stem)}</p>${imgHTML(q).replace(/<img /,ex.done?'<img ':'<img style="clip-path:inset(0 0 0 9%)" ')}
+    ${e.order.map((k,i)=>{let c=e.sel.has(k)?"sel":"";if(ex.done)c=right.has(k)?"ok":(e.sel.has(k)?"bad":"");
+      return `<button class="opt ${c}" data-k="${k}" ${ex.done?"disabled":""}><span class="n">${NUM[i]}</span><span>${q.opts[k]?(ex.done?hl(q.opts[k],q.keys[k]):esc(q.opts[k])):"見圖 "+NUM[k]}</span></button>`}).join("")}
+  </div>
+  <div class="row"><button class="btn" id="pv" ${ex.i?"":"disabled"}>上一題</button><button class="btn" id="nv">${ex.i<ex.qs.length-1?"下一題":"回到第 1 題"}</button></div>
+  ${ex.done?'<button class="btn pri" id="res" style="margin-top:10px">看成績</button>':'<button class="btn pri" id="sub" style="margin-top:10px">交卷</button>'}
+  <div class="palette">${ex.qs.map((x,i)=>{let c=x.sel.size?"done":"";if(ex.done)c=isRight(x)?"ok":"bad";return `<button class="${c}${i===ex.i?" cur":""}" data-i="${i}">${i+1}</button>`}).join("")}</div>`;
+  main.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;
+    if(multi){e.sel.has(k)?e.sel.delete(k):e.sel.add(k)}else{e.sel=new Set([k])}
+    if(!multi&&ex.i<ex.qs.length-1){ex.i++;}
+    examShow();
+  });
+  $("#pv").onclick=()=>{ex.i--;examShow()};
+  $("#nv").onclick=()=>{ex.i=ex.i<ex.qs.length-1?ex.i+1:0;examShow()};
+  main.querySelectorAll(".palette button").forEach(b=>b.onclick=()=>{ex.i=+b.dataset.i;examShow()});
+  const sub=$("#sub");
+  if(sub)sub.onclick=()=>{
+    const left=ex.qs.filter(x=>!x.sel.size).length;
+    if(left&&sub.dataset.c!=="1"){sub.dataset.c="1";sub.textContent=`還有 ${left} 題沒作答，再按一次交卷`;return}
+    examFinish();
+  };
+  const res=$("#res"); if(res)res.onclick=examResult;
+}
+function isRight(x){const q=byId[x.id];return x.sel.size===q.ans.length&&q.ans.every(a=>x.sel.has(a-1))}
+function examFinish(){
+  ex.done=true;
+  ex.score=ex.qs.reduce((s,x)=>s+(isRight(x)?(byId[x.id].k===0?2:1):0),0);
+  ex.qs.forEach(x=>{if(isRight(x)){S.st[x.id]=2;delete S.wr[x.id]}else if(x.sel.size){S.st[x.id]=1;S.wr[x.id]=1}});
+  save();examResult();
+}
+function examResult(){
+  setBar("模擬考成績","",true);
+  const pass=ex.score>=60, sg=ex.qs.filter(x=>byId[x.id].k!==0), mu=ex.qs.filter(x=>byId[x.id].k===0);
+  main.innerHTML=`<div class="card">
+    <div class="score"><b style="color:var(--${pass?"ok":"bad"})">${ex.score}</b><span>/ 100　${pass?"及格":"未及格"}</span></div>
+    <div class="stats"><div><b>${sg.filter(isRight).length}/60</b><small>單選</small></div><div><b>${mu.filter(isRight).length}/20</b><small>複選</small></div><div><b>${ex.qs.filter(x=>!isRight(x)).length}</b><small>錯題</small></div></div>
+  </div>
+  <div class="menu"><button class="btn pri" id="rv">逐題檢討</button><button class="btn" id="again">再考一次</button></div>
+  <p class="muted">答錯的題目已加入錯題本，也會重新出現在背題裡；沒作答的題目不列入。</p>`;
+  $("#rv").onclick=()=>{ex.i=0;examShow()};
+  $("#again").onclick=examStart;
+}
+
+// ---------- wrong book ----------
+function wrong(){
+  setBar("錯題本","",true);
+  const ids=ORDER.filter(id=>S.wr[id]);
+  main.innerHTML=(ids.length?`<button class="btn pri" id="pr" style="margin-bottom:12px">重練這 ${ids.length} 題</button>`:"")+
+  `<div class="list">${ids.map(id=>{const q=byId[id];
+    const a=q.k===0?q.opts.map((o,k)=>q.ans.includes(k+1)?"":`<div class="x">✗ ${o?hl(o,q.keys[k]):"見圖"}</div>`).join("")||'<div class="a">4 個全選</div>'
+      :`<div class="a">${q.opts[q.ans[0]-1]?hl(q.opts[q.ans[0]-1],q.keys[q.ans[0]-1]):"見圖 "+NUM[q.ans[0]-1]}</div>`;
+    return `<div class="card"><div class="qhead"><span>${KIND[q.k]}・${esc(q.sec)}</span></div><div>${esc(q.stem)}</div>${imgHTML(q)}${a}</div>`}).join("")||'<div class="card muted">目前沒有錯題。</div>'}</div>`;
+  const pr=$("#pr"); if(pr)pr.onclick=()=>{location.hash="practice"};
+}
+
+// ---------- keys ----------
+let kq="",kn=80;
+function keys(){
+  setBar("口訣表","",true);
+  main.innerHTML=`<input type="search" id="ks" placeholder="搜尋字串或選項內容" value="${esc(kq)}" aria-label="搜尋口訣">
+  <p class="muted">單選：選項有<b>選</b>的字串就選它。複選：先全選，選項有<b>刪</b>的字串就取消。</p><ul class="keys" id="kl"></ul>`;
+  const draw=()=>{
+    const ms=[30,40,50,60,70,80];let mi=0,h="",shown=0,i=0;
+    for(;i<TRIG.length&&shown<kn;i++){
+      const r=TRIG[i];
+      if(!kq)while(mi<ms.length&&r.s>=ms[mi]){h+=`<li class="ms">背到這裡 ≈ ${ms[mi]} 分</li>`;mi++}
+      if(kq&&!(r.t.includes(kq)||r.c.some(c=>c.includes(kq))))continue;
+      shown++;
+      h+=`<li><span class="i">${i+1}</span><span class="k ${r.d?"d":"p"}">${r.d?"刪":"選"}</span><span class="t"><b>${esc(r.t)}</b><small>${hl(r.c[0],r.t)}</small></span></li>`;
+    }
+    if(i<TRIG.length)h+=`<li style="display:block;border:0"><button class="btn" id="km" style="text-align:center">再顯示 80 條</button></li>`;
+    $("#kl").innerHTML=h;
+    const m=$("#km"); if(m)m.onclick=()=>{kn+=80;draw()};
+  };
+  $("#ks").oninput=e=>{kq=e.target.value.trim();kn=80;draw()};
+  draw();
+}
+
+// ---------- settings ----------
+function settings(){
+  setBar("設定","",true);
+  main.innerHTML=`<div class="card">
+    <label class="set"><input type="checkbox" id="s1" ${S.set.preview?"checked":""}><span>新題先看答案再測驗<br><span class="muted">完全沒讀過時建議開啟。已經有基礎可以關掉，直接測驗，會的題目一次就過。</span></span></label>
+    <label class="set" style="border:0"><input type="checkbox" id="s2" ${S.set.strong?"checked":""}><span>加強記憶<br><span class="muted">每題要連續答對 2 次才算背熟。時間多於 3 小時再開。</span></span></label>
+  </div>
+  <button class="btn" id="rs" style="text-align:center;color:var(--bad)">重設全部進度</button>`;
+  $("#s1").onchange=e=>{S.set.preview=e.target.checked;save()};
+  $("#s2").onchange=e=>{S.set.strong=e.target.checked;save()};
+  $("#rs").onclick=e=>{const b=e.currentTarget;if(b.dataset.c!=="1"){b.dataset.c="1";b.textContent="確定要清除所有進度？再按一次";return}
+    S.st={};S.wr={};save();location.hash="home"};
+}
+
+// ---------- router ----------
+function route(){
+  const h=location.hash.slice(1)||"home"; window.scrollTo(0,0);
+  if(h==="study")startStudy();
+  else if(h==="practice"){const ids=ORDER.filter(id=>S.wr[id]);startStudy(ids)}
+  else if(h==="exam")examStart();
+  else if(h==="wrong")wrong();
+  else if(h==="keys")keys();
+  else if(h==="settings")settings();
+  else home();
+}
+window.addEventListener("hashchange",route);
+route();
+__PWA_JS__
+</script>
