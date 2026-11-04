@@ -3,11 +3,11 @@ android {
     namespace 'app.aiefs.mobile'
     compileSdk 35
     defaultConfig {
-        applicationId 'app.aiefs.mobile.zh_tw'
+        applicationId 'app.aiefs.mobile.zh_tw.reader_v2'
         minSdk 26
         targetSdk 34
-        versionCode 2
-        versionName '1.1.0-zhTW'
+        versionCode 3
+        versionName '1.2.0-zhTW'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

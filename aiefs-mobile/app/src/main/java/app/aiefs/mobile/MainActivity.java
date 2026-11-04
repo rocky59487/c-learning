@@ -31,12 +31,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
-    private static final String HOME = "https://aiengineeringfromscratch.com/?lang=zh-TW";
+    private static final String HOME = "https://aiengineeringfromscratch.com/";
     private WebView web;
     private ProgressBar progress;
     private FrameLayout frame;
     private LinearLayout errorPanel;
     private boolean pageError;
+    private String lastFailure = "";
 
     private int dp(int n) { return Math.round(n * getResources().getDisplayMetrics().density); }
 
@@ -111,31 +112,43 @@ public class MainActivity extends Activity {
                 return super.shouldInterceptRequest(v, request);
             }
             @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r) {
+                if(!r.isForMainFrame()) return false;
                 Uri u=r.getUrl();
-                String host=u.getHost();
-                if("https".equalsIgnoreCase(u.getScheme()) && host!=null &&
-                   (host.equalsIgnoreCase("aiengineeringfromscratch.com") ||
-                    host.equalsIgnoreCase("www.aiengineeringfromscratch.com"))) {
-                    if (!u.getQueryParameterNames().contains("lang")) {
-                        v.loadUrl(u.buildUpon().appendQueryParameter("lang", "zh-TW").build().toString());
+                if(isSite(u)) {
+                    if(isLesson(u) && u.getQueryParameterNames().contains("lang") &&
+                       "zh-TW".equalsIgnoreCase(u.getQueryParameter("lang"))) {
+                        v.loadUrl(withoutLanguageQuery(u).toString());
                         return true;
                     }
                     return false;
                 }
-                if(r.isForMainFrame()) external(u);
+                external(u);
                 return true;
             }
             @Override public void onPageStarted(WebView v,String url,android.graphics.Bitmap icon) {
-                pageError=false; showError(false);
+                pageError=false;
+                lastFailure="";
+                showError(false);
             }
             @Override public void onReceivedError(WebView v,WebResourceRequest r,WebResourceError e) {
-                if(r.isForMainFrame()) { pageError=true; showError(true); }
+                if(r.isForMainFrame()) {
+                    pageError=true;
+                    lastFailure="網路錯誤 "+e.getErrorCode()+": "+String.valueOf(e.getDescription());
+                    showError(true);
+                }
             }
             @Override public void onReceivedHttpError(WebView v,WebResourceRequest r,WebResourceResponse e) {
-                if(r.isForMainFrame() && e.getStatusCode()>=400) { pageError=true; showError(true); }
+                if(r.isForMainFrame() && e.getStatusCode()>=400) {
+                    pageError=true;
+                    lastFailure="HTTP "+e.getStatusCode()+" "+e.getReasonPhrase();
+                    showError(true);
+                }
             }
             @Override public void onPageFinished(WebView v,String url) {
-                if(!pageError) showError(false);
+                if(!pageError) {
+                    showError(false);
+                    applyLanguagePreference();
+                }
             }
         });
         web.setDownloadListener((url,agent,disposition,mime,length)->{
@@ -202,12 +215,45 @@ public class MainActivity extends Activity {
         });
         p.show();
     }
+    private boolean isSite(Uri uri) {
+        if(uri==null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
+        String host=uri.getHost();
+        return host!=null &&
+            ("aiengineeringfromscratch.com".equalsIgnoreCase(host) ||
+             "www.aiengineeringfromscratch.com".equalsIgnoreCase(host));
+    }
+    private boolean isLesson(Uri uri) {
+        return "/lesson".equals(uri.getPath()) || "/lesson.html".equals(uri.getPath());
+    }
+    private Uri withoutLanguageQuery(Uri uri) {
+        if(!uri.getQueryParameterNames().contains("lang")) return uri;
+        Uri.Builder b=uri.buildUpon().clearQuery();
+        for(String name:uri.getQueryParameterNames()) {
+            if("lang".equals(name)) continue;
+            for(String value:uri.getQueryParameters(name)) b.appendQueryParameter(name,value);
+        }
+        return b.build();
+    }
+    private String preferredLanguage() {
+        return getSharedPreferences("reader",MODE_PRIVATE).getString("lang","zh-TW");
+    }
+    private void applyLanguagePreference() {
+        String lang=preferredLanguage();
+        String js="(function(){try{"
+            + "var old=window.AIFS_currentLang?window.AIFS_currentLang():'en';"
+            + ("en".equals(lang) ? "localStorage.removeItem('lang');" : "localStorage.setItem('lang','zh-TW');")
+            + "if(window.AIFS_applyLangDir)window.AIFS_applyLangDir('"+lang+"');"
+            + "if(window.AIFS_onLangChange&&old!=='"+lang+"')window.AIFS_onLangChange('"+lang+"');"
+            + "document.dispatchEvent(new CustomEvent('aifs:lang',{detail:{lang:'"+lang+"'}}));"
+            + "}catch(e){}})();";
+        web.evaluateJavascript(js,null);
+    }
     private void switchLanguage(String code) {
-        Uri u=Uri.parse(url());
-        Uri.Builder b=u.buildUpon().clearQuery();
-        for(String name:u.getQueryParameterNames()) if(!"lang".equals(name)) for(String val:u.getQueryParameters(name)) b.appendQueryParameter(name,val);
-        b.appendQueryParameter("lang",code);
-        web.loadUrl(b.build().toString());
+        getSharedPreferences("reader",MODE_PRIVATE).edit().putString("lang",code).apply();
+        Uri current=Uri.parse(url());
+        Uri clean=isSite(current)?withoutLanguageQuery(current):Uri.parse(HOME);
+        if(!clean.toString().equals(current.toString())) web.loadUrl(clean.toString());
+        else applyLanguagePreference();
     }
     private void makeError(){
         errorPanel=new LinearLayout(this);
@@ -225,6 +271,16 @@ public class MainActivity extends Activity {
         b.setText("重新載入");
         b.setOnClickListener(v->web.reload());
         errorPanel.addView(b);
+        Button browser=new Button(this);
+        browser.setText("在 Chrome 開啟課程");
+        browser.setOnClickListener(v->external(Uri.parse(url())));
+        errorPanel.addView(browser);
+        Button info=new Button(this);
+        info.setText("查看載入錯誤");
+        info.setOnClickListener(v->new android.app.AlertDialog.Builder(this)
+            .setTitle("載入錯誤").setMessage(lastFailure+"\n"+url())
+            .setPositiveButton("關閉",null).show());
+        errorPanel.addView(info);
         frame.addView(errorPanel,new FrameLayout.LayoutParams(-1,-1));
         showError(false);
     }

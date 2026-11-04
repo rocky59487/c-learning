@@ -16,3 +16,9 @@ GitHub Actions 可直接下載編譯的 APK artifact。
 
 Source: https://github.com/rohitg00/ai-engineering-from-scratch (MIT)
 Chinese conversion: opencc4j (Apache-2.0)
+
+## v1.2 修正課程無法開啟問題
+- `api/lesson.js` 不接受 `lang=zh-TW` 參數，先前 APK 自動追加 `lang=zh-TW` 導致導向循環。本版不會追加語言查詢參數。
+- 使用 WebView localStorage 和原站 AIFS_onLangChange 實現繁體中文課程，仍保留原始專業英文術語。
+- 載入失敗時可顯示錯誤資訊或在 Chrome 開啟。
+- 使用新 package ID 避免與先前一次性 Debug APK 不同簽章導致更新安裝失敗。可先並存測試，確認正常後卸載舊版。
