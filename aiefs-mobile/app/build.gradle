@@ -3,14 +3,16 @@ android {
     namespace 'app.aiefs.mobile'
     compileSdk 35
     defaultConfig {
-        applicationId 'app.aiefs.mobile'
+        applicationId 'app.aiefs.mobile.zh_tw'
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName '1.0.0'
+        versionCode 2
+        versionName '1.1.0-zhTW'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
 }
+
+dependencies { implementation 'com.github.houbb:opencc4j:1.14.0' }

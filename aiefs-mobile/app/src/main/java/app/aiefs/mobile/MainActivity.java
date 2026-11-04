@@ -31,7 +31,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
-    private static final String HOME = "https://aiengineeringfromscratch.com/";
+    private static final String HOME = "https://aiengineeringfromscratch.com/?lang=zh-TW";
     private WebView web;
     private ProgressBar progress;
     private FrameLayout frame;
@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
         bar.setBackgroundColor(Color.rgb(17,21,27));
         root.addView(bar, new LinearLayout.LayoutParams(-1,dp(50)));
         TextView title = new TextView(this);
-        title.setText("AI / FROM SCRATCH");
+        title.setText("AI 工程學習  /  繁體中文");
         title.setTextColor(Color.WHITE);
         title.setTextSize(13);
         title.setTypeface(null,1);
@@ -106,12 +106,22 @@ public class MainActivity extends Activity {
             }
         });
         web.setWebViewClient(new WebViewClient() {
+            @Override public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest request) {
+                if (LessonBridge.matches(request)) return LessonBridge.intercept(request.getUrl(), getCacheDir());
+                return super.shouldInterceptRequest(v, request);
+            }
             @Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r) {
                 Uri u=r.getUrl();
                 String host=u.getHost();
                 if("https".equalsIgnoreCase(u.getScheme()) && host!=null &&
                    (host.equalsIgnoreCase("aiengineeringfromscratch.com") ||
-                    host.equalsIgnoreCase("www.aiengineeringfromscratch.com"))) return false;
+                    host.equalsIgnoreCase("www.aiengineeringfromscratch.com"))) {
+                    if (!u.getQueryParameterNames().contains("lang")) {
+                        v.loadUrl(u.buildUpon().appendQueryParameter("lang", "zh-TW").build().toString());
+                        return true;
+                    }
+                    return false;
+                }
                 if(r.isForMainFrame()) external(u);
                 return true;
             }
@@ -166,12 +176,21 @@ public class MainActivity extends Activity {
         p.getMenu().add(Menu.NONE,3,2,"下一頁");
         p.getMenu().add(Menu.NONE,4,3,"在瀏覽器開啟");
         p.getMenu().add(Menu.NONE,5,4,"分享頁面");
+        p.getMenu().add(Menu.NONE,6,5,"英文術語對照");
+        p.getMenu().add(Menu.NONE,7,6,"閱讀英文原文");
+        p.getMenu().add(Menu.NONE,8,7,"切換繁體中文");
         p.setOnMenuItemClickListener(item->{
             switch(item.getItemId()){
                 case 1:web.loadUrl(HOME);return true;
                 case 2:if(web.canGoBack())web.goBack();return true;
                 case 3:if(web.canGoForward())web.goForward();return true;
                 case 4:external(Uri.parse(url()));return true;
+                case 6:
+                    new android.app.AlertDialog.Builder(this).setTitle("AI 工程專業術語")
+                        .setMessage(LessonBridge.glossary()).setPositiveButton("關閉", null).show();
+                    return true;
+                case 7: switchLanguage("en"); return true;
+                case 8: switchLanguage("zh-TW"); return true;
                 case 5:
                     Intent i=new Intent(Intent.ACTION_SEND);
                     i.setType("text/plain");
@@ -182,6 +201,13 @@ public class MainActivity extends Activity {
             return false;
         });
         p.show();
+    }
+    private void switchLanguage(String code) {
+        Uri u=Uri.parse(url());
+        Uri.Builder b=u.buildUpon().clearQuery();
+        for(String name:u.getQueryParameterNames()) if(!"lang".equals(name)) for(String val:u.getQueryParameters(name)) b.appendQueryParameter(name,val);
+        b.appendQueryParameter("lang",code);
+        web.loadUrl(b.build().toString());
     }
     private void makeError(){
         errorPanel=new LinearLayout(this);
